@@ -1,3 +1,12 @@
+#include <SPI.h>
+
+#include <EthernetUdp.h>
+#include <Dns.h>
+#include <Dhcp.h>
+#include <Ethernet.h>
+#include <EthernetServer.h>
+#include <EthernetClient.h>
+
 struct InputState {
   boolean switchState;
   boolean section1;
