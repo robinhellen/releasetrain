@@ -3,36 +3,33 @@ struct InputState {
   boolean section1;
   boolean section2;
   boolean section3;
-
-  void print();
 };
 
 class State {
   public:
     virtual State* getNextState(InputState input) = 0;
     virtual void enter() = 0;
-    virtual void printName() = 0;
+    virtual ~State();
 };
+
+State::~State() {}
 
 class AtRest : public State {
   public:
     virtual State* getNextState(InputState input);
     virtual void enter();
-    virtual void printName();
 };
 
 class GoingForwards : public State {
   public:
     virtual State* getNextState(InputState input);
     virtual void enter();
-    virtual void printName();  
 };
 
 class GoingBackwards : public State {
   public:
     virtual State* getNextState(InputState input);
-    virtual void enter();
-    virtual void printName();    
+    virtual void enter();   
 };
 
 State* AtRest::getNextState(InputState input)
@@ -71,28 +68,6 @@ void GoingBackwards::enter() {
   digitalWrite(11, LOW);  
 }
 
-void AtRest::printName() {
-  Serial.print("Stopped");
-}
-void GoingForwards::printName() {
-  Serial.print("Forward");
-}
-void GoingBackwards::printName() {
-  Serial.print("Backward");
-}
-
-void InputState::print()
-{
-  Serial.print("Button: ");
-  Serial.print(this->switchState ? "on " : "off");
-  Serial.print(" Section 1: ");
-  Serial.print(this->section1 ? "on " : "off");
-  Serial.print(" Section 2: ");
-  Serial.print(this->section2 ? "on " : "off");
-  Serial.print(" Section 3: ");
-  Serial.print(this->section3 ? "on " : "off");
-}
-
 State *currentState;
 
 void setup() {  
@@ -115,15 +90,9 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  int speedo = doPwm(9, A1, A2, A3);
+  doPwm(9, A2, A3);
 
   InputState state = readInputs();
-
-  Serial.print("Input state is: ");
-  state.print();
-  Serial.print("Currently in ");
-  currentState->printName();
-  Serial.println(" state");
 
   State * newState = currentState->getNextState(state);
   if(newState == NULL) return;
@@ -146,32 +115,14 @@ struct InputState readInputs()
 }
 
 // 1 second's worth of PWM
-int doPwm(int pin, int speedoPin, int speedPin, int trimmerPin)
+void doPwm(int pin, int speedPin, int trimmerPin)
 {
-  int speedoAccum = 0;
-  for(int i = 0; i < 100; i++)
-  {
-    int val = analogRead(speedPin);
-    int rangeBottom = analogRead(trimmerPin);
-    int bottom = map(rangeBottom, 0, 1023, 0, 255);
-    int speed = map(val, 0, 1023, bottom, 225);
-    if(speed == bottom) speed = 0;
-    speedoAccum += doPwmSingle(pin, speed, speedoPin);
-  }
-  return speedoAccum / 100;
-}
-
-// Single PWM cycle at 100Hz
-int doPwmSingle(int pin, byte speed, int speedoPin)
-{
-  /*digitalWrite(pin, HIGH);
-  int onPeriod = 10000 * speed / 256;
-  delayMicroseconds(onPeriod);
-  digitalWrite(pin, LOW);
-  delayMicroseconds(10000 - onPeriod);*/
+  int val = analogRead(speedPin);
+  int rangeBottom = analogRead(trimmerPin);
+  int bottom = map(rangeBottom, 0, 1023, 0, 255);
+  int speed = map(val, 0, 1023, bottom, 225);
+  if(speed == bottom) speed = 0;
   analogWrite(pin, speed);
-
-  return analogRead(speedoPin);
 }
 
 /**
@@ -218,9 +169,9 @@ void setPwmFrequency(int pin, int divisor) {
       default: return;
     }
     if(pin == 5 || pin == 6) {
-      TCCR0B = TCCR0B & 0b11111000 | mode;
+      TCCR0B = (TCCR0B & 0b11111000) | mode;
     } else {
-      TCCR1B = TCCR1B & 0b11111000 | mode;
+      TCCR1B = (TCCR1B & 0b11111000) | mode;
     }
   } else if(pin == 3 || pin == 11) {
     switch(divisor) {
@@ -233,7 +184,7 @@ void setPwmFrequency(int pin, int divisor) {
       case 1024: mode = 0x7; break;
       default: return;
     }
-    TCCR2B = TCCR2B & 0b11111000 | mode;
+    TCCR2B = (TCCR2B & 0b11111000) | mode;
   }
 }
 
