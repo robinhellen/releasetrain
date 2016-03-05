@@ -7,6 +7,15 @@
 //#include <EthernetServer.h>
 //#include <EthernetClient.h>
 
+#define MotorPWM 9
+#define MotorDirectionA 8
+#define MotorDirectionB 2
+
+#define SwitchInput 3
+#define TrackCircuit1 5
+#define TrackCircuit2 6
+#define TrackCircuit3 7
+
 struct InputState {
   boolean switchState;
   boolean section1;
@@ -63,18 +72,18 @@ State* GoingBackwards::getNextState(InputState input)
 }
 
 void AtRest::enter() {
-  digitalWrite(8, LOW);
-  digitalWrite(2, LOW);
+  digitalWrite(MotorDirectionA, LOW);
+  digitalWrite(MotorDirectionB, LOW);
 }
 
 void GoingForwards::enter() {
-  digitalWrite(8, LOW);
-  digitalWrite(2, HIGH);
+  digitalWrite(MotorDirectionA, LOW);
+  digitalWrite(MotorDirectionB, HIGH);
 }
 
 void GoingBackwards::enter() {
-  digitalWrite(8, HIGH);
-  digitalWrite(2, LOW);
+  digitalWrite(MotorDirectionA, HIGH);
+  digitalWrite(MotorDirectionB, LOW);
 }
 
 State *currentState;
@@ -90,14 +99,14 @@ void setup() {
   Ethernet.begin(mac, ip, dns, gateway, subnet);
   server.begin();*/
 
-  pinMode(3, INPUT);   // Push switch
-  pinMode(5, INPUT);   // Track circuit section 1
-  pinMode(6, INPUT);   // Track circuit section 2
-  pinMode(7, INPUT);   // Track circuit section 3
+  pinMode(SwitchInput, INPUT);   // Push switch
+  pinMode(TrackCircuit1, INPUT);   // Track circuit section 1
+  pinMode(TrackCircuit2, INPUT);   // Track circuit section 2
+  pinMode(TrackCircuit3, INPUT);   // Track circuit section 3
   
-  pinMode(8, OUTPUT);  // direction control (1)
-  pinMode(9, OUTPUT);  // PWM pin
-  pinMode(2, OUTPUT); // direction control (2)
+  pinMode(MotorDirectionA, OUTPUT);  // direction control (1)
+  pinMode(MotorPWM, OUTPUT);  // PWM pin
+  pinMode(MotorDirectionB, OUTPUT); // direction control (2)
   // put your setup code here, to run once:
 
   setPwmFrequency(9, 256);
@@ -110,7 +119,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  doPwm(9, A2, A3);
+  doPwm(MotorPWM, A2, A3);
 
   InputState state = readInputs();
   //checkForNetworkActivity();
@@ -125,10 +134,10 @@ void loop() {
 
 struct InputState readInputs()
 {
-  bool sect1 = digitalRead(5) == LOW;
-  bool sect2 = digitalRead(6) == LOW;
-  bool sect3 = digitalRead(7) == LOW;
-  bool button = digitalRead(3) == HIGH;
+  bool sect1 = digitalRead(TrackCircuit1) == LOW;
+  bool sect2 = digitalRead(TrackCircuit2) == LOW;
+  bool sect3 = digitalRead(TrackCircuit3) == LOW;
+  bool button = digitalRead(SwitchInput) == HIGH;
 
   InputState state = {button, sect1, sect2, sect3};
 
