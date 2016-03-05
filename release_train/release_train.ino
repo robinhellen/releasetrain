@@ -6,6 +6,7 @@
 #include <Ethernet2.h>
 //#include <EthernetServer.h>
 //#include <EthernetClient.h>
+#include <avr/pgmspace.h>
 
 #define MotorPWM 9
 #define MotorDirectionA 8
@@ -22,6 +23,8 @@ struct InputState {
   boolean section2;
   boolean section3;
 };
+
+bool lapRequested = false;
 
 class State {
   public:
@@ -54,6 +57,10 @@ State* AtRest::getNextState(InputState input)
 {
   if (input.switchState)
     return new GoingForwards();
+  if(lapRequested) {
+    lapRequested = false;
+    return new GoingForwards();
+  }
   return NULL;
 }
 
@@ -149,10 +156,11 @@ struct InputState readInputs() {
 }
 
 void processRequest (String method, String path, EthernetClient client) {
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: text/html");
+  client.println(F("HTTP/1.1 200 OK"));
+  client.println(F("Content-Type: text/html"));
   client.println();
-  client.println("<html><body><h1>Text from an arduino </h1></body></html>");
+  client.println(F("<html><body><h1>Text from an arduino </h1></body></html>"));
+  lapRequested = true;
 }
 
 void checkForNetworkActivity() {
