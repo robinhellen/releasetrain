@@ -64,39 +64,40 @@ State* GoingBackwards::getNextState(InputState input)
 
 void AtRest::enter() {
   digitalWrite(8, LOW);
-  digitalWrite(11, LOW);
+  digitalWrite(2, LOW);
 }
 
 void GoingForwards::enter() {
   digitalWrite(8, LOW);
-  digitalWrite(11, HIGH);
+  digitalWrite(2, HIGH);
 }
 
 void GoingBackwards::enter() {
   digitalWrite(8, HIGH);
-  digitalWrite(11, LOW);
+  digitalWrite(2, LOW);
 }
 
 State *currentState;
 EthernetServer server(80);
 
 void setup() {
-  byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
+  /*byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
 
   IPAddress ip(10, 120, 105, 239);
   IPAddress dns(10, 120, 105, 1);
   IPAddress gateway(10, 120, 105, 254);
   IPAddress subnet(255, 255, 255, 0);
   Ethernet.begin(mac, ip, dns, gateway, subnet);
-  server.begin();
+  server.begin();*/
 
   pinMode(3, INPUT);   // Push switch
-  pinMode(4, INPUT);   // Track circuit section 3
   pinMode(5, INPUT);   // Track circuit section 1
   pinMode(6, INPUT);   // Track circuit section 2
+  pinMode(7, INPUT);   // Track circuit section 3
+  
   pinMode(8, OUTPUT);  // direction control (1)
   pinMode(9, OUTPUT);  // PWM pin
-  pinMode(11, OUTPUT); // direction control (2)
+  pinMode(2, OUTPUT); // direction control (2)
   // put your setup code here, to run once:
 
   setPwmFrequency(9, 256);
@@ -112,7 +113,7 @@ void loop() {
   doPwm(9, A2, A3);
 
   InputState state = readInputs();
-  checkForNetworkActivity();
+  //checkForNetworkActivity();
 
   State * newState = currentState->getNextState(state);
   if (newState == NULL) return;
@@ -126,7 +127,7 @@ struct InputState readInputs()
 {
   bool sect1 = digitalRead(5) == LOW;
   bool sect2 = digitalRead(6) == LOW;
-  bool sect3 = digitalRead(4) == LOW;
+  bool sect3 = digitalRead(7) == LOW;
   bool button = digitalRead(3) == HIGH;
 
   InputState state = {button, sect1, sect2, sect3};
