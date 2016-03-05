@@ -82,6 +82,14 @@ State *currentState;
 EthernetServer server(80);
 
 void setup() {
+  /*byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
+
+  IPAddress ip(10, 120, 105, 239);
+  IPAddress dns(10, 120, 105, 1);
+  IPAddress gateway(10, 120, 105, 254);
+  IPAddress subnet(255, 255, 255, 0);
+  Ethernet.begin(mac, ip, dns, gateway, subnet);
+  server.begin();*/
 
   pinMode(3, INPUT);
   pinMode(4, INPUT);
@@ -105,6 +113,7 @@ void loop() {
   doPwm(9, A2, A3);
 
   InputState state = readInputs();
+  //checkForNetworkActivity();
 
   State * newState = currentState->getNextState(state);
   if (newState == NULL) return;
@@ -124,6 +133,46 @@ struct InputState readInputs()
   InputState state = {button, sect1, sect2, sect3};
 
   return state;
+}
+
+void checkForNetworkActivity() {
+  EthernetClient client = server.available();
+  bool currentLineIsBlank = true;
+  String currentLine = "";
+  String requestPath = "";
+  String requestMethod = "";
+  while(client.connected()) {
+    if(client.available()) {
+      char c = client.read();
+      if(c == '\n' && currentLineIsBlank)
+      {
+        // End of HTTP Header.
+        
+        break;
+      }
+      else if(c == '\n')
+      {
+        if(currentLine.startsWith("GET ")) {
+          requestMethod = "GET";
+          requestPath = currentLine.substring(4);
+        }
+        else if(currentLine.startsWith("POST ")) {
+          requestMethod = "POST";
+          requestPath = currentLine.substring(5);
+        }
+        
+        currentLineIsBlank = true;
+        currentLine = "";
+      }
+      else if(c != '\r')
+      {
+        currentLineIsBlank = false;
+        currentLine += c;
+      }
+    }
+  }
+  delay(1);
+  client.stop();
 }
 
 // 1 second's worth of PWM
