@@ -90,14 +90,19 @@ State *currentState;
 EthernetServer server(80);
 
 void setup() {
-  /*byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
+  byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
 
-  IPAddress ip(10, 120, 105, 239);
+  /*IPAddress ip(10, 120, 105, 239);
   IPAddress dns(10, 120, 105, 1);
-  IPAddress gateway(10, 120, 105, 254);
+  IPAddress gateway(10, 120, 105, 254);*/
+  
+  IPAddress ip(10,0,0,75);
+  IPAddress dns(10,0,0,3);
+  IPAddress gateway(10,0,0,1);
+  
   IPAddress subnet(255, 255, 255, 0);
   Ethernet.begin(mac, ip, dns, gateway, subnet);
-  server.begin();*/
+  server.begin();
 
   pinMode(SwitchInput, INPUT);   // Push switch
   pinMode(TrackCircuit1, INPUT);   // Track circuit section 1
@@ -122,7 +127,7 @@ void loop() {
   doPwm(MotorPWM, A2, A3);
 
   InputState state = readInputs();
-  //checkForNetworkActivity();
+  checkForNetworkActivity();
 
   State * newState = currentState->getNextState(state);
   if (newState == NULL) return;
@@ -132,8 +137,7 @@ void loop() {
   currentState = newState;
 }
 
-struct InputState readInputs()
-{
+struct InputState readInputs() {
   bool sect1 = digitalRead(TrackCircuit1) == LOW;
   bool sect2 = digitalRead(TrackCircuit2) == LOW;
   bool sect3 = digitalRead(TrackCircuit3) == LOW;
@@ -142,6 +146,13 @@ struct InputState readInputs()
   InputState state = {button, sect1, sect2, sect3};
 
   return state;
+}
+
+void processRequest (String method, String path, EthernetClient client) {
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/html");
+  client.println();
+  client.println("<html><body><h1>Text from an arduino </h1></body></html>");
 }
 
 void checkForNetworkActivity() {
@@ -156,7 +167,7 @@ void checkForNetworkActivity() {
       if(c == '\n' && currentLineIsBlank)
       {
         // End of HTTP Header.
-        
+        processRequest(requestMethod, requestPath, client);        
         break;
       }
       else if(c == '\n')
