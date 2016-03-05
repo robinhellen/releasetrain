@@ -1,12 +1,11 @@
 #include <SPI.h>
 
-#include <EthernetUdp.h>
-#include <Dns.h>
-#include <Dhcp.h>
-#include <Ethernet.h>
-#include <EthernetServer.h>
-#include <EthernetClient.h>
-
+//#include <EthernetUdp2.h>
+//#include <Dns.h>
+//#include <Dhcp.h>
+#include <Ethernet2.h>
+//#include <EthernetServer.h>
+//#include <EthernetClient.h>
 
 struct InputState {
   boolean switchState;
@@ -82,19 +81,19 @@ State *currentState;
 EthernetServer server(80);
 
 void setup() {
-  /*byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
+  byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
 
   IPAddress ip(10, 120, 105, 239);
   IPAddress dns(10, 120, 105, 1);
   IPAddress gateway(10, 120, 105, 254);
   IPAddress subnet(255, 255, 255, 0);
   Ethernet.begin(mac, ip, dns, gateway, subnet);
-  server.begin();*/
+  server.begin();
 
-  pinMode(3, INPUT);
-  pinMode(4, INPUT);
-  pinMode(5, INPUT);
-  pinMode(6, INPUT);
+  pinMode(3, INPUT);   // Push switch
+  pinMode(4, INPUT);   // Track circuit section 3
+  pinMode(5, INPUT);   // Track circuit section 1
+  pinMode(6, INPUT);   // Track circuit section 2
   pinMode(8, OUTPUT);  // direction control (1)
   pinMode(9, OUTPUT);  // PWM pin
   pinMode(11, OUTPUT); // direction control (2)
@@ -113,7 +112,7 @@ void loop() {
   doPwm(9, A2, A3);
 
   InputState state = readInputs();
-  //checkForNetworkActivity();
+  checkForNetworkActivity();
 
   State * newState = currentState->getNextState(state);
   if (newState == NULL) return;
