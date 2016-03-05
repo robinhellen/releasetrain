@@ -7,6 +7,7 @@
 #include <EthernetServer.h>
 #include <EthernetClient.h>
 
+
 struct InputState {
   boolean switchState;
   boolean section1;
@@ -38,55 +39,57 @@ class GoingForwards : public State {
 class GoingBackwards : public State {
   public:
     virtual State* getNextState(InputState input);
-    virtual void enter();   
+    virtual void enter();
 };
 
 State* AtRest::getNextState(InputState input)
 {
-  if(input.switchState)
+  if (input.switchState)
     return new GoingForwards();
   return NULL;
 }
 
 State* GoingForwards::getNextState(InputState input)
 {
-  if(input.section3)
+  if (input.section3)
     return new GoingBackwards();
   return NULL;
 }
 
 State* GoingBackwards::getNextState(InputState input)
 {
-  if(input.section1)
+  if (input.section1)
     return new AtRest();
   return NULL;
 }
 
 void AtRest::enter() {
   digitalWrite(8, LOW);
-  digitalWrite(11, LOW);  
+  digitalWrite(11, LOW);
 }
 
 void GoingForwards::enter() {
   digitalWrite(8, LOW);
-  digitalWrite(11, HIGH);  
+  digitalWrite(11, HIGH);
 }
 
 void GoingBackwards::enter() {
   digitalWrite(8, HIGH);
-  digitalWrite(11, LOW);  
+  digitalWrite(11, LOW);
 }
 
 State *currentState;
+EthernetServer server(80);
 
-void setup() {  
+void setup() {
+
   pinMode(3, INPUT);
   pinMode(4, INPUT);
   pinMode(5, INPUT);
   pinMode(6, INPUT);
-  pinMode(8, OUTPUT);
-  pinMode(9, OUTPUT);
-  pinMode(11, OUTPUT);
+  pinMode(8, OUTPUT);  // direction control (1)
+  pinMode(9, OUTPUT);  // PWM pin
+  pinMode(11, OUTPUT); // direction control (2)
   // put your setup code here, to run once:
 
   setPwmFrequency(9, 256);
@@ -104,11 +107,11 @@ void loop() {
   InputState state = readInputs();
 
   State * newState = currentState->getNextState(state);
-  if(newState == NULL) return;
+  if (newState == NULL) return;
 
   newState->enter();
   delete currentState;
-  currentState = newState;  
+  currentState = newState;
 }
 
 struct InputState readInputs()
@@ -117,7 +120,7 @@ struct InputState readInputs()
   bool sect2 = digitalRead(6) == LOW;
   bool sect3 = digitalRead(4) == LOW;
   bool button = digitalRead(3) == HIGH;
-  
+
   InputState state = {button, sect1, sect2, sect3};
 
   return state;
@@ -130,7 +133,7 @@ void doPwm(int pin, int speedPin, int trimmerPin)
   int rangeBottom = analogRead(trimmerPin);
   int bottom = map(rangeBottom, 0, 1023, 0, 255);
   int speed = map(val, 0, 1023, bottom, 225);
-  if(speed == bottom) speed = 0;
+  if (speed == bottom) speed = 0;
   analogWrite(pin, speed);
 }
 
@@ -168,8 +171,8 @@ void doPwm(int pin, int speedPin, int trimmerPin)
  */
 void setPwmFrequency(int pin, int divisor) {
   byte mode;
-  if(pin == 5 || pin == 6 || pin == 9 || pin == 10) {
-    switch(divisor) {
+  if (pin == 5 || pin == 6 || pin == 9 || pin == 10) {
+    switch (divisor) {
       case 1: mode = 0x01; break;
       case 8: mode = 0x02; break;
       case 64: mode = 0x03; break;
@@ -177,13 +180,13 @@ void setPwmFrequency(int pin, int divisor) {
       case 1024: mode = 0x05; break;
       default: return;
     }
-    if(pin == 5 || pin == 6) {
+    if (pin == 5 || pin == 6) {
       TCCR0B = (TCCR0B & 0b11111000) | mode;
     } else {
       TCCR1B = (TCCR1B & 0b11111000) | mode;
     }
-  } else if(pin == 3 || pin == 11) {
-    switch(divisor) {
+  } else if (pin == 3 || pin == 11) {
+    switch (divisor) {
       case 1: mode = 0x01; break;
       case 8: mode = 0x02; break;
       case 32: mode = 0x03; break;
