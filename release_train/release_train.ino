@@ -155,11 +155,43 @@ struct InputState readInputs() {
   return state;
 }
 
-void processRequest (String method, String path, EthernetClient client) {
-  client.println(F("HTTP/1.1 200 OK"));
-  client.println(F("Content-Type: text/html"));
-  client.println();
-  client.println(F("<html><body><h1>Text from an arduino </h1></body></html>"));
+void responseCode(int code, String reason, EthernetClient client)
+{
+  client.print(F("HTTP/1.1 "));
+  client.print(code);
+  client.print(" ");
+  client.println(reason);
+}
+
+void processRequest (String method, String path, EthernetClient client) {  
+  if(method == "GET") {
+    if(path == "/track-circuits/status") {
+      InputState state = readInputs();
+      responseCode(200, "OK", client);
+      client.println(F("Content-Type: application/json"));
+      client.println();
+      client.print("{\"section1\": ");
+      client.print(state.section1);
+      client.print(", \"section2\": ");
+      client.print(state.section2);
+      client.print(",\"section3\": ");
+      client.print(state.section3);
+      client.println("}");
+    }
+    else if(path == "/") {
+      responseCode(200, "OK", client);
+      client.println(F("Content-Type: text/html"));
+      client.println();
+      client.println(F("<html><body><h1>Text from an arduino </h1></body></html>"));
+    }
+    else {
+      responseCode(303, "See Other", client);
+      client.println(F("Location: /"));
+      client.println();
+    }
+  };
+  
+  
   lapRequested = true;
 }
 
@@ -182,11 +214,13 @@ void checkForNetworkActivity() {
       {
         if(currentLine.startsWith("GET ")) {
           requestMethod = "GET";
-          requestPath = currentLine.substring(4);
+          int pathEnd = currentLine.indexOf(' ', 4);          
+          requestPath = currentLine.substring(4, pathEnd);
         }
         else if(currentLine.startsWith("POST ")) {
           requestMethod = "POST";
-          requestPath = currentLine.substring(5);
+          int pathEnd = currentLine.indexOf(' ', 5);  
+          requestPath = currentLine.substring(5, pathEnd);
         }
         
         currentLineIsBlank = true;
