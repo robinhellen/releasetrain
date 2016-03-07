@@ -99,13 +99,13 @@ EthernetServer server(80);
 void setup() {
   byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
 
-  /*IPAddress ip(10, 120, 105, 239);
+  IPAddress ip(10, 120, 105, 239);
   IPAddress dns(10, 120, 105, 1);
-  IPAddress gateway(10, 120, 105, 254);*/
+  IPAddress gateway(10, 120, 105, 254);
   
-  IPAddress ip(10,0,0,75);
+  /*IPAddress ip(10,0,0,75);
   IPAddress dns(10,0,0,3);
-  IPAddress gateway(10,0,0,1);
+  IPAddress gateway(10,0,0,1);*/
   
   IPAddress subnet(255, 255, 255, 0);
   Ethernet.begin(mac, ip, dns, gateway, subnet);
@@ -183,16 +183,18 @@ void processRequest (String method, String path, EthernetClient client) {
       client.println(F("Content-Type: text/html"));
       client.println();
       client.println(F("<html><body><h1>Text from an arduino </h1></body></html>"));
+  
+      lapRequested = true;
+    }
+    else if path.startwith("/favicon") {
+      responseCode(404, "Not Found", client);
     }
     else {
       responseCode(303, "See Other", client);
       client.println(F("Location: /"));
       client.println();
     }
-  };
-  
-  
-  lapRequested = true;
+  }  
 }
 
 void checkForNetworkActivity() {
