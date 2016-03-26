@@ -17,6 +17,8 @@
 #define TrackCircuit2 6
 #define TrackCircuit3 7
 
+#define WITH_NETWORK
+
 struct InputState {
   boolean switchState;
   boolean section1;
@@ -94,9 +96,13 @@ void GoingBackwards::enter() {
 }
 
 State *currentState;
+
+#ifdef WITH_NETWORK
 EthernetServer server(80);
+#endif
 
 void setup() {
+  #ifdef WITH_NETWORK
   byte mac[] = {0x90, 0xA2, 0xDA, 0x10, 0x03, 0x85};
 
   IPAddress ip(10, 120, 105, 239);
@@ -110,6 +116,7 @@ void setup() {
   IPAddress subnet(255, 255, 255, 0);
   Ethernet.begin(mac, ip, dns, gateway, subnet);
   server.begin();
+  #endif
 
   pinMode(SwitchInput, INPUT);   // Push switch
   pinMode(TrackCircuit1, INPUT);   // Track circuit section 1
@@ -134,7 +141,10 @@ void loop() {
   doPwm(MotorPWM, A2, A3);
 
   InputState state = readInputs();
+  
+  #ifdef WITH_NETWORK
   checkForNetworkActivity();
+  #endif
 
   State * newState = currentState->getNextState(state);
   if (newState == NULL) return;
@@ -201,6 +211,7 @@ void processRequest (String method, String path, EthernetClient client) {
   }  
 }
 
+#ifdef WITH_NETWORK
 void checkForNetworkActivity() {
   EthernetClient client = server.available();
   bool currentLineIsBlank = true;
@@ -242,6 +253,7 @@ void checkForNetworkActivity() {
   delay(1);
   client.stop();
 }
+#endif
 
 // 1 second's worth of PWM
 void doPwm(int pin, int speedPin, int trimmerPin)
