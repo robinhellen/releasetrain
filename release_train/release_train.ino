@@ -143,7 +143,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   currentState->loop();
-  doPwm(MotorPWM, SpeedControl, SpeedTrimmer);
+  doThrottledPwm(MotorPWM, SpeedControl, SpeedTrimmer);
 
   InputState state = readInputs();
   
@@ -261,7 +261,7 @@ void checkForNetworkActivity() {
 #endif
 
 // 1 second's worth of PWM
-void doPwm(int pin, int speedPin, int trimmerPin)
+void doThrottledPwm(int pin, int speedPin, int trimmerPin)
 {
   int val = analogRead(speedPin);
   int rangeBottom = analogRead(trimmerPin);
@@ -269,6 +269,11 @@ void doPwm(int pin, int speedPin, int trimmerPin)
   int speed = map(val, 0, 1023, bottom, 225);
   if (speed == bottom) speed = 0;
   analogWrite(pin, speed);
+}
+
+void doFixedPwm(int pwmPin, int speed)
+{
+  analogWrite(pwmPin, speed);
 }
 
 /**
