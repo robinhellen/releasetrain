@@ -17,7 +17,7 @@
 #define TrackCircuit2 6
 #define TrackCircuit3 7
 
-#define WITH_NETWORK
+// #define WITH_NETWORK
 
 struct InputState {
   boolean switchState;
