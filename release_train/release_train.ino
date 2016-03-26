@@ -186,7 +186,7 @@ void processRequest (String method, String path, EthernetClient client) {
   
       lapRequested = true;
     }
-    else if path.startwith("/favicon") {
+    else if (path.startsWith("/favicon")) {
       responseCode(404, "Not Found", client);
     }
     else {
