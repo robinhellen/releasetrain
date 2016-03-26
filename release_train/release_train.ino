@@ -45,18 +45,21 @@ class AtRest : public State {
   public:
     virtual State* getNextState(InputState input);
     virtual void enter();
+    virtual void loop();
 };
 
 class GoingForwards : public State {
   public:
     virtual State* getNextState(InputState input);
     virtual void enter();
+    virtual void loop();
 };
 
 class GoingBackwards : public State {
   public:
     virtual State* getNextState(InputState input);
     virtual void enter();
+    virtual void loop();
 };
 
 State* AtRest::getNextState(InputState input)
@@ -97,6 +100,18 @@ void GoingForwards::enter() {
 void GoingBackwards::enter() {
   digitalWrite(MotorDirectionA, HIGH);
   digitalWrite(MotorDirectionB, LOW);
+}
+
+void AtRest::loop() {
+  doThrottledPwm(MotorPWM, SpeedControl, SpeedTrimmer);  
+}
+
+void GoingForwards::loop() {
+  doThrottledPwm(MotorPWM, SpeedControl, SpeedTrimmer);  
+}
+
+void GoingBackwards::loop() {
+  doThrottledPwm(MotorPWM, SpeedControl, SpeedTrimmer);  
 }
 
 State *currentState;
@@ -143,7 +158,6 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   currentState->loop();
-  doThrottledPwm(MotorPWM, SpeedControl, SpeedTrimmer);
 
   InputState state = readInputs();
   
