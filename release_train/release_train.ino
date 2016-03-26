@@ -32,6 +32,7 @@ class State {
   public:
     virtual State* getNextState(InputState input) = 0;
     virtual void enter() = 0;
+    virtual void loop() {}
     virtual ~State();
 };
 
@@ -138,6 +139,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  currentState->loop();
   doPwm(MotorPWM, A2, A3);
 
   InputState state = readInputs();
