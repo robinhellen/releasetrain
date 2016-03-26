@@ -17,6 +17,9 @@
 #define TrackCircuit2 6
 #define TrackCircuit3 7
 
+#define SpeedControl A2
+#define SpeedTrimmer A3
+
 // #define WITH_NETWORK
 
 struct InputState {
@@ -140,7 +143,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   currentState->loop();
-  doPwm(MotorPWM, A2, A3);
+  doPwm(MotorPWM, SpeedControl, SpeedTrimmer);
 
   InputState state = readInputs();
   
