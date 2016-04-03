@@ -103,7 +103,7 @@ void GoingBackwards::enter() {
 }
 
 void AtRest::loop() {
-  doThrottledPwm(MotorPWM, SpeedControl, SpeedTrimmer);  
+  doFixedPwm(MotorPWM, 0);  
 }
 
 void GoingForwards::loop() {
@@ -181,10 +181,6 @@ struct InputState readInputs() {
 
   InputState state = {button, sect1, sect2, sect3};
   
-  Serial.print("Track sections occupied: ");
-  Serial.print(sect1 ? "1 " : "  ");
-  Serial.print(sect2 ? "2 " : "  ");
-  Serial.println(sect3 ? "3": " ");
   return state;
 }
 
