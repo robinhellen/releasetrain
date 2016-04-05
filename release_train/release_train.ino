@@ -20,7 +20,7 @@
 #define SpeedControl A2
 #define SpeedTrimmer A3
 
-// #define WITH_NETWORK
+#define WITH_NETWORK
 
 struct InputState {
   boolean switchState;
