@@ -93,13 +93,13 @@ void AtRest::enter() {
 }
 
 void GoingForwards::enter() {
-  digitalWrite(MotorDirectionA, LOW);
-  digitalWrite(MotorDirectionB, HIGH);
+  digitalWrite(MotorDirectionA, HIGH);
+  digitalWrite(MotorDirectionB, LOW);
 }
 
 void GoingBackwards::enter() {
-  digitalWrite(MotorDirectionA, HIGH);
-  digitalWrite(MotorDirectionB, LOW);
+  digitalWrite(MotorDirectionA, LOW);
+  digitalWrite(MotorDirectionB, HIGH);
 }
 
 void AtRest::loop() {
@@ -146,6 +146,10 @@ void setup() {
   pinMode(MotorPWM, OUTPUT);  // PWM pin
   pinMode(MotorDirectionB, OUTPUT); // direction control (2)
   // put your setup code here, to run once:
+  
+  pinMode(51, OUTPUT);
+  pinMode(52, OUTPUT);
+  pinMode(53, OUTPUT);
 
   setPwmFrequency(9, 256);
   Serial.begin(9600);
@@ -180,6 +184,9 @@ struct InputState readInputs() {
   bool button = digitalRead(SwitchInput) == HIGH;
 
   InputState state = {button, sect1, sect2, sect3};
+  digitalWrite(51, sect1 ? HIGH : LOW);
+  digitalWrite(52, sect2 ? HIGH : LOW);
+  digitalWrite(53, sect3 ? HIGH : LOW);
   
   return state;
 }
