@@ -17,6 +17,10 @@
 #define TrackCircuit2 6
 #define TrackCircuit3 7
 
+#define TrackCircuitIndicator1 51
+#define TrackCircuitIndicator2 52
+#define TrackCircuitIndicator3 53
+
 #define SpeedControl A2
 #define SpeedTrimmer A3
 
@@ -147,9 +151,9 @@ void setup() {
   pinMode(MotorDirectionB, OUTPUT); // direction control (2)
   // put your setup code here, to run once:
   
-  pinMode(51, OUTPUT);
-  pinMode(52, OUTPUT);
-  pinMode(53, OUTPUT);
+  pinMode(TrackCircuitIndicator1, OUTPUT);
+  pinMode(TrackCircuitIndicator2, OUTPUT);
+  pinMode(TrackCircuitIndicator3, OUTPUT);
 
   setPwmFrequency(9, 256);
   Serial.begin(9600);
@@ -184,9 +188,9 @@ struct InputState readInputs() {
   bool button = digitalRead(SwitchInput) == HIGH;
 
   InputState state = {button, sect1, sect2, sect3};
-  digitalWrite(51, sect1 ? HIGH : LOW);
-  digitalWrite(52, sect2 ? HIGH : LOW);
-  digitalWrite(53, sect3 ? HIGH : LOW);
+  digitalWrite(TrackCircuitIndicator1, sect1 ? HIGH : LOW);
+  digitalWrite(TrackCircuitIndicator2, sect2 ? HIGH : LOW);
+  digitalWrite(TrackCircuitIndicator3, sect3 ? HIGH : LOW);
   
   return state;
 }
