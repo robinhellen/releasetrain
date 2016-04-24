@@ -17,9 +17,9 @@
 #define TrackCircuit2 6
 #define TrackCircuit3 7
 
-#define TrackCircuitIndicator1 51
-#define TrackCircuitIndicator2 52
-#define TrackCircuitIndicator3 53
+#define TrackCircuitIndicator1 41
+#define TrackCircuitIndicator2 42
+#define TrackCircuitIndicator3 43
 
 #define SpeedControl A2
 #define SpeedTrimmer A3
